@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" stylesheets="@paintproject.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+   <top>
+      <MenuBar styleClass="paintproject" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#OpenImage" text="Open Image" />
+                  <MenuItem mnemonicParsing="false" onAction="#SaveImage" text="Save Image" />
+                  <MenuItem mnemonicParsing="false" onAction="#SaveImageAs" text="Save Image As" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#NewCanvas" text="New Canvas" />
+                  <MenuItem mnemonicParsing="false" onAction="#SaveCanvasAs" text="Save Canvas As" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+              <MenuItem mnemonicParsing="false" onAction="#CloseApp" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Undo" />
+                  <MenuItem mnemonicParsing="false" text="Redo" />
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="View">
+              <items>
+                  <MenuItem mnemonicParsing="false" text="100% Zoom" />
+                  <RadioMenuItem mnemonicParsing="false" text="Gridlines On" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Image">
+              <items>
+                  <Menu mnemonicParsing="false" text="Select Area">
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="Rectangular Area" />
+                        <MenuItem mnemonicParsing="false" text="Circular Area" />
+                        <MenuItem mnemonicParsing="false" text="Free-form Area" />
+                    </items>
+                  </Menu>
+                  <MenuItem mnemonicParsing="false" text="Crop" />
+                  <MenuItem mnemonicParsing="false" text="Rotate" />
+                  <MenuItem mnemonicParsing="false" text="Resize" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Tools">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Pencil" />
+                  <MenuItem mnemonicParsing="false" text="Fill With Color" />
+                  <MenuItem mnemonicParsing="false" text="Insert Text" />
+                  <MenuItem mnemonicParsing="false" text="Eraser" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Colors">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#ColorPicker" text="Color Picker" />
+               </items></Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+                  <MenuItem mnemonicParsing="false" onAction="#ReleaseNotes" text="Release Notes" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <left>
+      <TabPane prefHeight="568.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="TOP_LEFT">
+        <tabs>
+          <Tab text="Image Editing">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fx:id="imgpic" fitHeight="349.0" fitWidth="498.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="Canvas Creation">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Pane id="canvas-pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="420.0" prefWidth="730.0">
+                           <children>
+                              <Canvas fx:id="newCanvas" height="420.0" width="730.0" />
+                           </children>
+                        </Pane>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </left>
+</BorderPane>
