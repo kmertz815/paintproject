@@ -268,7 +268,7 @@ public class MainController implements Initializable{
     
     // RELEASE NOTES
     public void ReleaseNotes(ActionEvent event) {
-        
+        // Test
     }
     
     // DRAW SHAPES EXAMPLE CODE
