@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" stylesheets="@paintproject.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" stylesheets="@paintproject.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
    <top>
       <MenuBar styleClass="paintproject" BorderPane.alignment="CENTER">
         <menus>
@@ -54,10 +54,10 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Tools">
               <items>
-                <MenuItem mnemonicParsing="false" text="Pencil" />
+                  <RadioMenuItem mnemonicParsing="false" onAction="#Draw" text="Free Draw" />
                   <MenuItem mnemonicParsing="false" text="Fill With Color" />
                   <MenuItem mnemonicParsing="false" text="Insert Text" />
-                  <MenuItem mnemonicParsing="false" text="Eraser" />
+                  <MenuItem mnemonicParsing="false" onAction="#Eraser" text="Eraser" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Colors">
@@ -74,31 +74,22 @@
       </MenuBar>
    </top>
    <left>
-      <TabPane prefHeight="568.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="TOP_LEFT">
-        <tabs>
-          <Tab text="Image Editing">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ImageView fx:id="imgpic" fitHeight="349.0" fitWidth="498.0" pickOnBounds="true" preserveRatio="true" />
-                     </children>
-                  </AnchorPane>
-            </content>
-          </Tab>
-          <Tab text="Canvas Creation">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <Pane id="canvas-pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="420.0" prefWidth="730.0">
-                           <children>
-                              <Canvas fx:id="newCanvas" height="420.0" width="730.0" />
-                           </children>
-                        </Pane>
-                     </children>
-                  </AnchorPane>
-            </content>
-          </Tab>
-        </tabs>
-      </TabPane>
+      <Pane fx:id="rootPane" prefHeight="678.0" prefWidth="953.0" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fx:id="imgView" fitHeight="459.0" fitWidth="722.0" pickOnBounds="true" preserveRatio="true">
+               <cursor>
+                  <Cursor fx:constant="CROSSHAIR" />
+               </cursor>
+            </ImageView>
+            <StackPane fx:id="stack" alignment="TOP_LEFT" prefHeight="150.0" prefWidth="200.0">
+               <children>
+                  <Canvas fx:id="canvas" height="700.0" width="1100.0" />
+               </children>
+            </StackPane>
+         </children>
+         <cursor>
+            <Cursor fx:constant="CROSSHAIR" />
+         </cursor>
+      </Pane>
    </left>
 </BorderPane>

@@ -7,18 +7,16 @@
 
 package application;
 
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,24 +26,26 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import javafx.scene.canvas.*;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.chart.BarChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import static javafx.scene.paint.Color.BLACK;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
-import sun.net.www.content.image.png;
+
 
 
 public class MainController implements Initializable{
@@ -56,17 +56,32 @@ public class MainController implements Initializable{
     String fileName;
     String canvaspath;
     String canvasFileName;
-    Color color;
-    
+    GraphicsContext gc;
+    GraphicsContext gcTest;
+    double imgHeight;
+    double imgWidth;
+    Canvas canvasNew;
+    Color color = BLACK;
+    ColorPicker colorPicker = new ColorPicker();
     
     @FXML
-    ImageView imgpic;
+    Pane rootPane;
     @FXML
-    Canvas newCanvas;
+    StackPane stack;
+    @FXML
+    ImageView imgView;
+    @FXML
+    Canvas canvas;
+    @FXML
+    MenuButton freeDrawClick;
     
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        
+        // Set default background as white for Canvas snapshot:
+        stack.setStyle("-fx-background-color: white");
+        
     }
     
     
@@ -79,7 +94,7 @@ public class MainController implements Initializable{
     
     // OPEN IMAGE FILE
     public void OpenImage(ActionEvent actionEvent) throws MalformedURLException {
-        
+
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Open Image File");
         chooser.getExtensionFilters().addAll(
@@ -88,11 +103,22 @@ public class MainController implements Initializable{
         file = chooser.showOpenDialog(new Stage());
         
         if(file != null) {
+            
+            stack.setStyle("-fx-background-color: transparent;");
+            
             imagepath = file.toURI().toURL().toString();
             fileName = file.getName();
             System.out.println("file:"+imagepath);
             img = new Image(imagepath);
-            imgpic.setImage(img);
+            imgView.setImage(img);
+            imgHeight = img.getHeight();
+            imgWidth = img.getWidth();
+            imgView.setFitHeight(imgHeight);
+            imgView.setFitWidth(imgWidth);
+            
+            // Clear Canvas when opening new image:
+            gc = canvas.getGraphicsContext2D(); 
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         }
         else
         {
@@ -110,7 +136,7 @@ public class MainController implements Initializable{
                 
         if (file != null) {
 
-            ImageIO.write(SwingFXUtils.fromFXImage(imgpic.getImage(),
+            ImageIO.write(SwingFXUtils.fromFXImage(imgView.getImage(),
                     null), "png", file);
 
         } else {
@@ -147,7 +173,7 @@ public class MainController implements Initializable{
             File fileTemp = chooser.showSaveDialog(stage);
             
             if (fileTemp != null) {
-                ImageIO.write(SwingFXUtils.fromFXImage(imgpic.getImage(),
+                ImageIO.write(SwingFXUtils.fromFXImage(imgView.getImage(),
                         null), "png", fileTemp);
                 file = fileTemp;
                 fileName = file.getName();
@@ -168,9 +194,24 @@ public class MainController implements Initializable{
     // CREATE NEW CANVAS
     public void NewCanvas(ActionEvent actionEvent) {
         
-        GraphicsContext gc = newCanvas.getGraphicsContext2D();
-        drawShapes(gc);
+        //Pane root = new Pane();
+
+        //StackPane holder = new StackPane();
+        /*
+        Canvas newCanvas = new Canvas(400, 300);
+
+        stack.getChildren().add(newCanvas);
+        rootPane.getChildren().add(stack);
+        */
+        stack.setStyle("-fx-background-color: white");
+        //Scene scene = new Scene(rootPane, 600, 400);
         
+        
+        /*
+        //stack.getChildren().add(new Button("OK"));
+        gcTest = canvasNew.getGraphicsContext2D();
+        drawShapes(gcTest);
+        */
     }
 
     
@@ -193,10 +234,22 @@ public class MainController implements Initializable{
         chooser.setTitle("Save Canvas");
             
         SnapshotParameters params = new SnapshotParameters();
-        WritableImage wim = new WritableImage(300, 250);
+        
+        int saveHeight;
+        int saveWidth;
+        
+        if (img != null) {    // if an image was uploaded
+            saveHeight = (int)imgView.getFitHeight();
+            saveWidth = (int)imgView.getFitWidth();
+        } else{               // else take original canvas size
+            saveHeight = (int)canvas.getHeight();
+            saveWidth = (int)canvas.getWidth();
+        }
+        
+        WritableImage wim = new WritableImage(saveWidth, saveHeight);
         
         params.setFill(Color.TRANSPARENT);
-        newCanvas.snapshot(params, wim);
+        rootPane.snapshot(params, wim);
         
         File output = chooser.showSaveDialog(stage);
 
@@ -213,28 +266,25 @@ public class MainController implements Initializable{
         
         Stage stage = new Stage();
         
-        final ColorPicker colorPicker = new ColorPicker();
-        colorPicker.setValue(Color.RED);
+        colorPicker.setValue(color);
  
         final Circle circle = new Circle(50);
         color = colorPicker.getValue();
         circle.setFill(color);
  
-        colorPicker.setOnAction(new EventHandler<ActionEvent>() {
- 
-            @Override
-            public void handle(ActionEvent event) {
-                color = colorPicker.getValue();
-                circle.setFill(color);
-                
-            }
+        colorPicker.setOnAction((ActionEvent event1) -> {
+            color = colorPicker.getValue();
+            circle.setFill(color);
+            // Reset Draw method (applying new color):
+            //
         });
  
         FlowPane root = new FlowPane();
         root.setPadding(new Insets(10));
         root.setHgap(10);
         root.getChildren().addAll(circle, colorPicker);
- 
+        
+        
         Scene scene = new Scene(root, 350, 130);
  
         stage.setTitle("Kaleb's Color Picker");
@@ -266,12 +316,105 @@ public class MainController implements Initializable{
         */
     }
     
+    
+    // ERASER
+    public void Eraser(ActionEvent event) {
+        
+        /*
+        // Clear away portions as the user drags the mouse
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
+            gcTest.clearRect(e.getX() - 2, e.getY() - 2, 5, 5);
+        });
+        */
+    }
+    
+    
+    // CLEAR CANVAS
+    public void ClearCanvas(ActionEvent event) {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+    
+    
+    // DRAW CONTINUOUSLY
+    public void Draw(ActionEvent event) {
+            
+        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        initDraw(graphicsContext);
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                graphicsContext.beginPath();
+                graphicsContext.moveTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+            }
+        });
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                graphicsContext.lineTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+            }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                
+            }
+        });
+        
+        //stack.getChildren().add(canvas);
+        
+    }
+    
+    
+    // DRAW COMMANDS
+    private void initDraw(GraphicsContext gc){
+        
+        double canvasWidth = gc.getCanvas().getWidth();
+        double canvasHeight = gc.getCanvas().getHeight();
+        
+        /* Uncomment for Canvas border line:
+        gc.strokeRect(
+                0,              //x of the upper left corner
+                0,              //y of the upper left corner
+                canvasWidth,    //width of the rectangle
+                canvasHeight);  //height of the rectangle
+        */
+        
+        gc.rect(0, 0, canvasWidth, canvasHeight);
+        
+        //gc.fill();
+        //gc.setFill(Color.LIGHTGRAY);
+        gc.setStroke(color);
+        gc.setLineWidth(1);
+        // gc.setLineWidth(5);
+
+    }
+    
+    
+    // ZOOM IN/OUT
+    public void Zoom(ActionEvent event) {
+        // COMING SOON
+        
+    }
+    
+    
     // RELEASE NOTES
     public void ReleaseNotes(ActionEvent event) {
     }
     
+    
     // DRAW SHAPES EXAMPLE CODE
-    private void drawShapes(GraphicsContext gc) {
+    private void drawShapes(GraphicsContext gcTest) {
         gc.setFill(Color.GREEN);
         gc.setStroke(Color.BLUE);
         gc.setLineWidth(5);
@@ -293,6 +436,5 @@ public class MainController implements Initializable{
         gc.strokePolyline(new double[]{110, 140, 110, 140},
                 new double[]{210, 210, 240, 240}, 4);
     }
-    
     
 }
