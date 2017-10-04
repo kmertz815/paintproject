@@ -51,8 +51,6 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import javax.imageio.ImageIO;
 
-
-
 public class MainController implements Initializable{
     
     Image img;
@@ -104,6 +102,7 @@ public class MainController implements Initializable{
     
     // CLOSE APP
     public void CloseApp(ActionEvent event) {
+        
         Platform.exit();
         System.exit(0);
     }
@@ -465,7 +464,12 @@ public class MainController implements Initializable{
     // DRAW SQUARE
     public void DrawSquare(ActionEvent event) {
         
+        screenshot();
+        
         Rectangle dragBox = new Rectangle(0, 0, 0, 0);
+        dragBox.setStroke(color);
+        dragBox.setStrokeWidth(lineWidthSlider.getValue());
+        dragBox.setFill(color.TRANSPARENT);
         dragBox.setVisible(false);
         
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
@@ -473,6 +477,9 @@ public class MainController implements Initializable{
 
             @Override
             public void handle(MouseEvent event) {
+                
+                loadScreenshot();
+                
                 dragBox.setVisible(true);
                 dragBox.setTranslateX(event.getX());
                 dragBox.setTranslateY(event.getY());
@@ -485,7 +492,7 @@ public class MainController implements Initializable{
             @Override
             public void handle(MouseEvent event) {
                 dragBox.setWidth(event.getX() - dragBox.getTranslateX());
-                dragBox.setHeight(event.getY() - dragBox.getTranslateY());
+                dragBox.setHeight(event.getY() - dragBox.getTranslateY());                
             }
         });
 
@@ -494,9 +501,12 @@ public class MainController implements Initializable{
 
             @Override
             public void handle(MouseEvent event) {
-                dragBox.setVisible(false);
+                screenshot();
+                //dragBox.setVisible(false);
             }
         });
+        
+        rootPane.getChildren().add(dragBox);
         
     }
     
