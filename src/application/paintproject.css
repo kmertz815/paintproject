@@ -6,23 +6,27 @@ CS-250 Paint Project CSS
     Author     : kaleb mertz
 */
 
-.root {
+.root{
 -fx-base: rgb(50, 50, 50);
 -fx-background: rgb(50, 50, 50);
 -fx-control-inner-background:  rgb(50, 50, 50);
 }
  
-.tab {
+.borderPane {
 -fx-background-color: linear-gradient(to top, -fx-base, derive(-fx-base,30%));
 }
  
 .menu-bar {
 -fx-background-color: linear-gradient(to bottom, -fx-base, derive(-fx-base,30%));
 }
+
+#head {
+    -fx-background-color: gray;
+}
  
  
 .button {
--fx-background-color: transparent;
+-fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
 }
  
 .button:hover {

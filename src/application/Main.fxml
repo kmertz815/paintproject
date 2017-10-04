@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.image.*?>
@@ -11,70 +13,8 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" stylesheets="@paintproject.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
-   <top>
-      <MenuBar styleClass="paintproject" BorderPane.alignment="CENTER">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#OpenImage" text="Open Image" />
-                  <MenuItem mnemonicParsing="false" onAction="#SaveImage" text="Save Image" />
-                  <MenuItem mnemonicParsing="false" onAction="#SaveImageAs" text="Save Image As" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#NewCanvas" text="New Canvas" />
-                  <MenuItem mnemonicParsing="false" onAction="#SaveCanvasAs" text="Save Canvas As" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#CloseApp" text="Close" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Undo" />
-                  <MenuItem mnemonicParsing="false" text="Redo" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="View">
-              <items>
-                  <MenuItem mnemonicParsing="false" text="100% Zoom" />
-                  <RadioMenuItem mnemonicParsing="false" text="Gridlines On" />
-              </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Image">
-              <items>
-                  <Menu mnemonicParsing="false" text="Select Area">
-                    <items>
-                      <MenuItem mnemonicParsing="false" text="Rectangular Area" />
-                        <MenuItem mnemonicParsing="false" text="Circular Area" />
-                        <MenuItem mnemonicParsing="false" text="Free-form Area" />
-                    </items>
-                  </Menu>
-                  <MenuItem mnemonicParsing="false" text="Crop" />
-                  <MenuItem mnemonicParsing="false" text="Rotate" />
-                  <MenuItem mnemonicParsing="false" text="Resize" />
-              </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Tools">
-              <items>
-                  <RadioMenuItem mnemonicParsing="false" onAction="#Draw" text="Free Draw" />
-                  <MenuItem mnemonicParsing="false" text="Fill With Color" />
-                  <MenuItem mnemonicParsing="false" text="Insert Text" />
-                  <MenuItem mnemonicParsing="false" onAction="#Eraser" text="Eraser" />
-              </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Colors">
-               <items>
-                  <MenuItem mnemonicParsing="false" onAction="#ColorPicker" text="Color Picker" />
-               </items></Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
-                  <MenuItem mnemonicParsing="false" onAction="#ReleaseNotes" text="Release Notes" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-   </top>
    <left>
-      <Pane fx:id="rootPane" prefHeight="678.0" prefWidth="953.0" BorderPane.alignment="CENTER">
+      <Pane id="root" fx:id="rootPane" prefHeight="678.0" prefWidth="953.0" BorderPane.alignment="CENTER">
          <children>
             <ImageView fx:id="imgView" fitHeight="459.0" fitWidth="722.0" pickOnBounds="true" preserveRatio="true">
                <cursor>
@@ -92,4 +32,131 @@
          </cursor>
       </Pane>
    </left>
+   <top>
+      <VBox id="head" prefHeight="110.0" prefWidth="1200.0" styleClass="paintproject" BorderPane.alignment="CENTER">
+         <children>
+            <MenuBar>
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#OpenImage" text="Open Image" />
+                        <MenuItem mnemonicParsing="false" onAction="#SaveImage" text="Save Image" />
+                        <MenuItem mnemonicParsing="false" onAction="#SaveImageAs" text="Save Image As" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#NewCanvas" text="New Canvas" />
+                        <MenuItem mnemonicParsing="false" onAction="#SaveCanvasAs" text="Save Canvas As" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                    <MenuItem mnemonicParsing="false" onAction="#CloseApp" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Undo" />
+                        <MenuItem mnemonicParsing="false" text="Redo" />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false" text="View">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="100% Zoom" />
+                        <RadioMenuItem mnemonicParsing="false" text="Gridlines On" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Image">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Select Area">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Rectangular Area" />
+                              <MenuItem mnemonicParsing="false" text="Circular Area" />
+                              <MenuItem mnemonicParsing="false" text="Free-form Area" />
+                          </items>
+                        </Menu>
+                        <MenuItem mnemonicParsing="false" text="Crop" />
+                        <MenuItem mnemonicParsing="false" text="Rotate" />
+                        <MenuItem mnemonicParsing="false" text="Resize" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Tools">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#Draw" text="Free Draw" />
+                        <MenuItem mnemonicParsing="false" onAction="#DrawLine" text="Draw Line" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Fill With Color" />
+                        <MenuItem mnemonicParsing="false" text="Insert Text" />
+                        <MenuItem mnemonicParsing="false" onAction="#Eraser" text="Eraser" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Colors">
+                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#ColorPicker" text="Color Picker" />
+                     </items>
+                  </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                        <MenuItem mnemonicParsing="false" onAction="#ReleaseNotes" text="Release Notes" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <HBox prefHeight="86.0" prefWidth="1200.0">
+               <children>
+                  <VBox prefHeight="78.0" prefWidth="61.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#ColorPicker" text="Color">
+                           <VBox.margin>
+                              <Insets bottom="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Button>
+                        <Circle fx:id="colorCircle" radius="16.0" stroke="BLACK" strokeType="INSIDE">
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
+                        </Circle>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <Separator layoutX="163.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0" />
+                  <Button layoutX="236.0" layoutY="10.0" mnemonicParsing="false" onAction="#Draw" prefHeight="83.0" prefWidth="88.0" text="Free Draw">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#DrawLine" prefHeight="83.0" prefWidth="72.0" text="Line">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button layoutX="236.0" layoutY="10.0" mnemonicParsing="false" onAction="#DrawSquare" prefHeight="83.0" prefWidth="72.0" text="Square">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button layoutX="236.0" layoutY="10.0" mnemonicParsing="false" onAction="#DrawCircle" prefHeight="83.0" prefWidth="72.0" text="Circle">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Separator orientation="VERTICAL" prefHeight="200.0" />
+                  <VBox prefHeight="78.0" prefWidth="201.0">
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Line Thickness:">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Text>
+                        <Slider fx:id="lineWidthSlider" blockIncrement="1.0" majorTickUnit="2.0" max="20.0" min="1.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Slider>
+                     </children>
+                  </VBox>
+                  <Separator orientation="VERTICAL" prefHeight="200.0" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
 </BorderPane>

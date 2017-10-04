@@ -15,6 +15,8 @@ import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -33,6 +35,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.Slider;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
@@ -41,9 +44,11 @@ import javafx.scene.layout.StackPane;
 import static javafx.scene.paint.Color.BLACK;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import javax.imageio.ImageIO;
 
 
@@ -63,6 +68,12 @@ public class MainController implements Initializable{
     Canvas canvasNew;
     Color color = BLACK;
     ColorPicker colorPicker = new ColorPicker();
+    WritableImage wim;
+    int saveHeight;
+    int saveWidth;
+    int lineWidth;
+    
+    private Pair<Double, Double> initialTouch;
     
     @FXML
     Pane rootPane;
@@ -74,6 +85,10 @@ public class MainController implements Initializable{
     Canvas canvas;
     @FXML
     MenuButton freeDrawClick;
+    @FXML
+    Slider lineWidthSlider;
+    @FXML
+    Circle colorCircle;
     
     
     @Override
@@ -81,6 +96,8 @@ public class MainController implements Initializable{
         
         // Set default background as white for Canvas snapshot:
         stack.setStyle("-fx-background-color: white");
+        
+        lineWidthSlider.setValue(2);
         
     }
     
@@ -233,23 +250,7 @@ public class MainController implements Initializable{
         chooser.setInitialFileName("snapshot" + new Date().getTime() + ".png");
         chooser.setTitle("Save Canvas");
             
-        SnapshotParameters params = new SnapshotParameters();
-        
-        int saveHeight;
-        int saveWidth;
-        
-        if (img != null) {    // if an image was uploaded
-            saveHeight = (int)imgView.getFitHeight();
-            saveWidth = (int)imgView.getFitWidth();
-        } else{               // else take original canvas size
-            saveHeight = (int)canvas.getHeight();
-            saveWidth = (int)canvas.getWidth();
-        }
-        
-        WritableImage wim = new WritableImage(saveWidth, saveHeight);
-        
-        params.setFill(Color.TRANSPARENT);
-        rootPane.snapshot(params, wim);
+        screenshot();
         
         File output = chooser.showSaveDialog(stage);
 
@@ -268,13 +269,16 @@ public class MainController implements Initializable{
         
         colorPicker.setValue(color);
  
-        final Circle circle = new Circle(50);
+        Circle colorCircle2 = new Circle(50);
+        
         color = colorPicker.getValue();
-        circle.setFill(color);
+        colorCircle.setFill(color);
+        colorCircle2.setFill(color);
  
         colorPicker.setOnAction((ActionEvent event1) -> {
             color = colorPicker.getValue();
-            circle.setFill(color);
+            colorCircle.setFill(color);
+            colorCircle2.setFill(color);
             // Reset Draw method (applying new color):
             //
         });
@@ -282,7 +286,7 @@ public class MainController implements Initializable{
         FlowPane root = new FlowPane();
         root.setPadding(new Insets(10));
         root.setHgap(10);
-        root.getChildren().addAll(circle, colorPicker);
+        root.getChildren().addAll(colorCircle2, colorPicker);
         
         
         Scene scene = new Scene(root, 350, 130);
@@ -376,6 +380,133 @@ public class MainController implements Initializable{
     }
     
     
+    // DRAW LINE
+    public void DrawLine(ActionEvent event) {
+        
+        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        initDraw(graphicsContext);
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED,
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                
+                screenshot();
+                loadScreenshot();
+                //GraphicsContext context = canvas.getGraphicsContext2D();
+                //initDraw(context);
+
+                initialTouch = new Pair<>(event.getX(), event.getY());
+            }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED,
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                //GraphicsContext context = canvas.getGraphicsContext2D();
+                graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                graphicsContext.strokeLine(initialTouch.getKey(), initialTouch.getValue(), event.getX(), event.getY());
+            }
+        });
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                
+                screenshot();
+                loadScreenshot();
+
+            }
+        });
+
+    }
+    
+    
+    // Take a screenshot of current imageView
+    public void screenshot(){
+        SnapshotParameters params = new SnapshotParameters();
+
+        if (img != null) {    // if an image was uploaded
+            saveHeight = (int)imgView.getFitHeight();
+            saveWidth = (int)imgView.getFitWidth();
+        } else{               // else take original canvas size
+            saveHeight = (int)canvas.getHeight();
+            saveWidth = (int)canvas.getWidth();
+        }
+
+        wim = new WritableImage(saveWidth, saveHeight);
+
+        params.setFill(Color.TRANSPARENT);
+        rootPane.snapshot(params, wim);
+    }
+    
+    
+    // Load the screenshot back onto the pane
+    public void loadScreenshot(){
+        stack.setStyle("-fx-background-color: transparent;");
+
+        imgView.setImage(wim);
+        imgHeight = wim.getHeight();
+        imgWidth = wim.getWidth();
+        imgView.setFitHeight(saveHeight);
+        imgView.setFitWidth(saveWidth);
+        
+        //Clear Canvas when opening new image:
+        gc = canvas.getGraphicsContext2D(); 
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+    
+    
+    // DRAW SQUARE
+    public void DrawSquare(ActionEvent event) {
+        
+        Rectangle dragBox = new Rectangle(0, 0, 0, 0);
+        dragBox.setVisible(false);
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                dragBox.setVisible(true);
+                dragBox.setTranslateX(event.getX());
+                dragBox.setTranslateY(event.getY());
+            }
+        });
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                dragBox.setWidth(event.getX() - dragBox.getTranslateX());
+                dragBox.setHeight(event.getY() - dragBox.getTranslateY());
+            }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                dragBox.setVisible(false);
+            }
+        });
+        
+    }
+    
+    
+    // DRAW CIRCLE
+    public void DrawCircle(ActionEvent event) {
+        
+    }
+    
+    
     // DRAW COMMANDS
     private void initDraw(GraphicsContext gc){
         
@@ -395,7 +526,7 @@ public class MainController implements Initializable{
         //gc.fill();
         //gc.setFill(Color.LIGHTGRAY);
         gc.setStroke(color);
-        gc.setLineWidth(1);
+        gc.setLineWidth(lineWidthSlider.getValue());
         // gc.setLineWidth(5);
 
     }
