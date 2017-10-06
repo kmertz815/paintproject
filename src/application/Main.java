@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 
+
 public class Main extends Application {
     
     @Override
@@ -28,6 +29,7 @@ public class Main extends Application {
             scene.getStylesheets().add(getClass().getResource("paintproject.css").toExternalForm());
             primaryStage.setScene(scene);
             primaryStage.show();
+
         } catch(Exception e) {
         }
     }

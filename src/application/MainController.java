@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -48,6 +49,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 import javax.imageio.ImageIO;
 
@@ -72,6 +74,8 @@ public class MainController implements Initializable{
     int lineWidth;
     
     private Pair<Double, Double> initialTouch;
+    ArrayDeque<WritableImage> dequeUndo = new ArrayDeque<>();
+    ArrayDeque<WritableImage> dequeRedo = new ArrayDeque<>();
     
     @FXML
     Pane rootPane;
@@ -97,7 +101,13 @@ public class MainController implements Initializable{
         
         lineWidthSlider.setValue(2);
         
+        screenshot();
+        //loadScreenshot();
+        dequeUndo.push(wim);
+        
     }
+    
+    
     
     
     // CLOSE APP
@@ -340,13 +350,38 @@ public class MainController implements Initializable{
     
     // DRAW CONTINUOUSLY
     public void Draw(ActionEvent event) {
-            
+        
+        clearMouseEvents();
+        
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         initDraw(graphicsContext);
         
+        canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                graphicsContext.beginPath();
+                graphicsContext.moveTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+            }
+        });
+
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                graphicsContext.lineTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+            }
+        });
+
+        canvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                screenshot();
+                loadScreenshot();
+                dequeUndo.push(wim);
+            }
+        });
+        
+        /*
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
                 new EventHandler<MouseEvent>(){
-
             @Override
             public void handle(MouseEvent event) {
                 graphicsContext.beginPath();
@@ -357,7 +392,6 @@ public class MainController implements Initializable{
         
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
                 new EventHandler<MouseEvent>(){
-
             @Override
             public void handle(MouseEvent event) {
                 graphicsContext.lineTo(event.getX(), event.getY());
@@ -367,30 +401,31 @@ public class MainController implements Initializable{
 
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
                 new EventHandler<MouseEvent>(){
-
             @Override
             public void handle(MouseEvent event) {
-                
+                screenshot();
+                loadScreenshot();
+                dequeUndo.push(wim);
             }
         });
         
         //stack.getChildren().add(canvas);
         
+        */
     }
     
     
     // DRAW LINE
     public void DrawLine(ActionEvent event) {
         
+        clearMouseEvents();
+        
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         initDraw(graphicsContext);
-        
-        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED,
-                new EventHandler<MouseEvent>(){
 
-            @Override
+        
+        canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                
                 screenshot();
                 loadScreenshot();
                 //GraphicsContext context = canvas.getGraphicsContext2D();
@@ -398,6 +433,38 @@ public class MainController implements Initializable{
 
                 initialTouch = new Pair<>(event.getX(), event.getY());
             }
+        });
+
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                //GraphicsContext context = canvas.getGraphicsContext2D();
+                graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                graphicsContext.strokeLine(initialTouch.getKey(), initialTouch.getValue(), event.getX(), event.getY());
+            }
+        });
+
+        canvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                screenshot();
+                loadScreenshot();
+                dequeUndo.push(wim);
+            }
+        });
+        
+        /* Other option for mouse events:
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED,
+                new EventHandler<MouseEvent>(){
+
+                @Override
+                public void handle(MouseEvent event) {
+
+                    screenshot();
+                    loadScreenshot();
+                    //GraphicsContext context = canvas.getGraphicsContext2D();
+                    //initDraw(context);
+
+                    initialTouch = new Pair<>(event.getX(), event.getY());
+                }
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED,
@@ -419,10 +486,156 @@ public class MainController implements Initializable{
                 
                 screenshot();
                 loadScreenshot();
-
+                dequeUndo.push(wim);
+            }
+        });
+        */
+        
+        
+    }
+    
+    
+    // DRAW SQUARE
+    public void DrawSquare(ActionEvent event) {
+        
+        clearMouseEvents();
+        
+        screenshot();
+        
+        Rectangle dragBox = new Rectangle(0, 0, 0, 0);
+        dragBox.setStroke(color);
+        dragBox.setStrokeWidth(lineWidthSlider.getValue());
+        dragBox.setFill(color.TRANSPARENT);
+        dragBox.setVisible(false);
+        
+        canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                loadScreenshot();
+                
+                dragBox.setVisible(true);
+                dragBox.setTranslateX(event.getX());
+                dragBox.setTranslateY(event.getY());
             }
         });
 
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                dragBox.setWidth(event.getX() - dragBox.getTranslateX());
+                dragBox.setHeight(event.getY() - dragBox.getTranslateY());    
+            }
+        });
+
+        canvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                screenshot();
+                loadScreenshot();
+                dequeUndo.push(wim);
+                //dragBox.setVisible(false);
+            }
+        });
+        
+        /*
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                
+                loadScreenshot();
+                
+                dragBox.setVisible(true);
+                dragBox.setTranslateX(event.getX());
+                dragBox.setTranslateY(event.getY());
+            }
+        });
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                dragBox.setWidth(event.getX() - dragBox.getTranslateX());
+                dragBox.setHeight(event.getY() - dragBox.getTranslateY());                
+            }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
+                new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                screenshot();
+                loadScreenshot();
+                dequeUndo.push(wim);
+                //dragBox.setVisible(false);
+            }
+        });
+        */
+        
+        rootPane.getChildren().add(dragBox);
+    }
+    
+    
+    // DRAW CIRCLE
+    public void DrawCircle(ActionEvent event) {
+        
+    }
+    
+    
+    // DRAW COMMANDS
+    private void initDraw(GraphicsContext gc){
+        
+        double canvasWidth = gc.getCanvas().getWidth();
+        double canvasHeight = gc.getCanvas().getHeight();
+        
+        /* Uncomment for Canvas border line:
+        gc.strokeRect(
+                0,              //x of the upper left corner
+                0,              //y of the upper left corner
+                canvasWidth,    //width of the rectangle
+                canvasHeight);  //height of the rectangle
+        */
+        
+        gc.rect(0, 0, canvasWidth, canvasHeight);
+        
+        //gc.fill();
+        //gc.setFill(Color.LIGHTGRAY);
+        gc.setStroke(color);
+        gc.setLineWidth(lineWidthSlider.getValue());
+        // gc.setLineWidth(5);
+
+    }
+    
+    
+    // UNDO
+    public void Undo(ActionEvent event) {
+        wim = dequeUndo.pop();
+        loadScreenshot();
+        dequeRedo.push(wim);
+    }
+    
+    
+    // REDO
+    public void Redo(ActionEvent event) {
+        wim = dequeRedo.pop();
+        loadScreenshot();
+        dequeUndo.push(wim);
+    }
+    
+    
+    // ZOOM IN/OUT
+    public void Zoom(ActionEvent event) {
+        // COMING SOON
+        
+    }
+    
+    
+    // Clear all running mouse action events
+    public void clearMouseEvents(){
+        canvas.setOnMouseClicked(null);
+        canvas.setOnMousePressed(null);
+        canvas.setOnMouseDragged(null);
+        canvas.setOnMouseReleased(null);
     }
     
     
@@ -461,100 +674,12 @@ public class MainController implements Initializable{
     }
     
     
-    // DRAW SQUARE
-    public void DrawSquare(ActionEvent event) {
-        
-        screenshot();
-        
-        Rectangle dragBox = new Rectangle(0, 0, 0, 0);
-        dragBox.setStroke(color);
-        dragBox.setStrokeWidth(lineWidthSlider.getValue());
-        dragBox.setFill(color.TRANSPARENT);
-        dragBox.setVisible(false);
-        
-        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
-                new EventHandler<MouseEvent>(){
-
-            @Override
-            public void handle(MouseEvent event) {
-                
-                loadScreenshot();
-                
-                dragBox.setVisible(true);
-                dragBox.setTranslateX(event.getX());
-                dragBox.setTranslateY(event.getY());
-            }
-        });
-        
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
-                new EventHandler<MouseEvent>(){
-
-            @Override
-            public void handle(MouseEvent event) {
-                dragBox.setWidth(event.getX() - dragBox.getTranslateX());
-                dragBox.setHeight(event.getY() - dragBox.getTranslateY());                
-            }
-        });
-
-        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
-                new EventHandler<MouseEvent>(){
-
-            @Override
-            public void handle(MouseEvent event) {
-                screenshot();
-                //dragBox.setVisible(false);
-            }
-        });
-        
-        rootPane.getChildren().add(dragBox);
-        
-    }
-    
-    
-    // DRAW CIRCLE
-    public void DrawCircle(ActionEvent event) {
-        
-    }
-    
-    
-    // DRAW COMMANDS
-    private void initDraw(GraphicsContext gc){
-        
-        double canvasWidth = gc.getCanvas().getWidth();
-        double canvasHeight = gc.getCanvas().getHeight();
-        
-        /* Uncomment for Canvas border line:
-        gc.strokeRect(
-                0,              //x of the upper left corner
-                0,              //y of the upper left corner
-                canvasWidth,    //width of the rectangle
-                canvasHeight);  //height of the rectangle
-        */
-        
-        gc.rect(0, 0, canvasWidth, canvasHeight);
-        
-        //gc.fill();
-        //gc.setFill(Color.LIGHTGRAY);
-        gc.setStroke(color);
-        gc.setLineWidth(lineWidthSlider.getValue());
-        // gc.setLineWidth(5);
-
-    }
-    
-    
-    // ZOOM IN/OUT
-    public void Zoom(ActionEvent event) {
-        // COMING SOON
-        
-    }
-    
-    
     // RELEASE NOTES
     public void ReleaseNotes(ActionEvent event) {
     }
     
     
-    // DRAW SHAPES EXAMPLE CODE
+    // Draw Shapes example code
     private void drawShapes(GraphicsContext gcTest) {
         gc.setFill(Color.GREEN);
         gc.setStroke(Color.BLUE);

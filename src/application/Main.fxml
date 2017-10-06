@@ -51,8 +51,8 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Undo" />
-                        <MenuItem mnemonicParsing="false" text="Redo" />
+                    <MenuItem mnemonicParsing="false" onAction="#Undo" text="Undo" />
+                        <MenuItem mnemonicParsing="false" onAction="#Redo" text="Redo" />
                   </items>
                 </Menu>
                   <Menu mnemonicParsing="false" text="View">

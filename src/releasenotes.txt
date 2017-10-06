@@ -1,4 +1,4 @@
-Version 001 - 9/8/2017
+v0.1.0 - 9/8/2017
 
 * The software has a close, expand, and minimize button.
 * The software allows the user to view an image from a file.
