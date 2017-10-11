@@ -16,7 +16,7 @@
    <left>
       <Pane id="root" fx:id="rootPane" prefHeight="678.0" prefWidth="953.0" BorderPane.alignment="CENTER">
          <children>
-            <AnchorPane prefHeight="150.0" prefWidth="200.0">
+            <AnchorPane prefHeight="150.0" prefWidth="220.0">
                <children>
                   <ImageView fx:id="imgView" fitHeight="666.0" fitWidth="1091.0" pickOnBounds="true" preserveRatio="true">
                      <cursor>
@@ -83,7 +83,7 @@
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#Draw" text="Free Draw" />
                         <MenuItem mnemonicParsing="false" onAction="#DrawLine" text="Draw Line" />
-                        <MenuItem mnemonicParsing="false" text="Insert Text" />
+                        <MenuItem mnemonicParsing="false" onAction="#InsertText" text="Insert Text" />
                         <MenuItem mnemonicParsing="false" onAction="#CutAndMove" text="Cut and Move" />
                         <MenuItem mnemonicParsing="false" onAction="#Eraser" text="Eraser" />
                     </items>
@@ -141,7 +141,19 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
                   </Button>
+                  <Separator layoutX="491.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0" />
+                  <Button mnemonicParsing="false" onAction="#InsertText" prefHeight="80.0" prefWidth="90.0" text="Insert Text">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Separator layoutX="76.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0" />
                   <Button mnemonicParsing="false" onAction="#CutAndMove" prefHeight="83.0" text="Cut and Move">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button layoutX="185.0" layoutY="15.0" mnemonicParsing="false" onAction="#Eraser" prefHeight="83.0" prefWidth="72.0" text="Eraser">
                      <HBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
@@ -162,6 +174,21 @@
                      </children>
                   </VBox>
                   <Separator orientation="VERTICAL" prefHeight="200.0" />
+                  <VBox prefHeight="200.0" prefWidth="80.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#Undo" prefHeight="40.0" prefWidth="72.0" text="Undo">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#Redo" prefHeight="40.0" prefWidth="72.0" text="Redo">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Button>
+                     </children>
+                  </VBox>
+                  <Separator layoutX="951.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0" />
                </children>
             </HBox>
          </children>

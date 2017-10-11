@@ -24,6 +24,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -39,15 +40,20 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import static javafx.scene.paint.Color.BLACK;
 import javafx.scene.shape.ArcType;
@@ -82,6 +88,7 @@ public class MainController implements Initializable{
     Rectangle dragBox = new Rectangle(0, 0, 0, 0);
     double orgSceneX, orgSceneY;
     double orgTranslateX, orgTranslateY;
+    ImageView imgViewCut;
     
     private Pair<Double, Double> initialTouch;
     ArrayDeque<WritableImage> dequeUndo = new ArrayDeque<>();
@@ -110,10 +117,10 @@ public class MainController implements Initializable{
         rootPane.setStyle("-fx-background-color: white");
         //canvas.setStyle("-fx-background-color: white");
         
-        lineWidthSlider.setValue(2);
+        lineWidthSlider.setValue(5);
         
-        screenshot();
-        //loadScreenshot();
+        screenshot();  // take initial screenshot
+        loadScreenshot();
         dequeUndo.push(wim);
         
     }
@@ -154,6 +161,11 @@ public class MainController implements Initializable{
             // Clear Canvas when opening new image:
             gc = canvas.getGraphicsContext2D(); 
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            
+            rootPane.setStyle("-fx-background-color: transparent");
+            
+            screenshot();
+            loadScreenshot();
         }
         else
         {
@@ -342,12 +354,35 @@ public class MainController implements Initializable{
     // ERASER
     public void Eraser(ActionEvent event) {
         
-        /*
-        // Clear away portions as the user drags the mouse
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
-            gcTest.clearRect(e.getX() - 2, e.getY() - 2, 5, 5);
+        clearMouseEvents();
+        
+        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        initDraw(graphicsContext);
+        gc.setStroke(color.WHITE);
+        
+        canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                graphicsContext.beginPath();
+                graphicsContext.moveTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+            }
         });
-        */
+
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                graphicsContext.lineTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+            }
+        });
+
+        canvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                screenshot();
+                loadScreenshot();
+                dequeUndo.push(wim);
+            }
+        });
+        
     }
     
     
@@ -428,6 +463,7 @@ public class MainController implements Initializable{
     public void DrawLine(ActionEvent event) {
         
         clearMouseEvents();
+        loadScreenshot();
         
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         initDraw(graphicsContext);
@@ -508,14 +544,15 @@ public class MainController implements Initializable{
     public void DrawSquare(ActionEvent event) {
         
         clearMouseEvents();
-        
-        screenshot();
+        loadScreenshot();
         
         Rectangle dragBox = new Rectangle(0, 0, 0, 0);
         dragBox.setStroke(color);
         dragBox.setStrokeWidth(lineWidthSlider.getValue());
         dragBox.setFill(color.TRANSPARENT);
         dragBox.setVisible(false);
+        
+        rootPane.getChildren().add(dragBox);
         
         canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
@@ -536,10 +573,11 @@ public class MainController implements Initializable{
 
         canvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
+                
                 screenshot();
                 loadScreenshot();
                 dequeUndo.push(wim);
-                //dragBox.setVisible(false);
+                dragBox.setVisible(false); // screenshot taken, so remove box
             }
         });
         
@@ -581,7 +619,7 @@ public class MainController implements Initializable{
         });
         */
         
-        rootPane.getChildren().add(dragBox);
+        
     }
     
     
@@ -591,27 +629,118 @@ public class MainController implements Initializable{
     }
     
     
+    // INSERT TEXT
+    public void InsertText(ActionEvent event) {
+        
+        clearMouseEvents();
+        loadScreenshot();
+        
+        TextField textField = new TextField ();
+        HBox hbox = new HBox(textField);
+        hbox.setMinWidth(800);
+        
+        textField.setStyle("-fx-text-inner-color: black;"
+                + "-fx-background-color: transparent;");
+        textField.setPromptText("Click Enter Once You've Completed Typing");
+        hbox.setHgrow(textField, Priority.ALWAYS);
+        
+        canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                
+                hbox.setVisible(true);
+                hbox.setTranslateX(event.getX());
+                hbox.setTranslateY(event.getY());
+                
+                rootPane.getChildren().add(hbox);
+
+                rootPane.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
+                    if (ev.getCode() == KeyCode.ENTER) {
+                        screenshot();
+                        dequeUndo.push(wim);
+                        hbox.setVisible(false);
+                        loadScreenshot();
+                        ev.consume(); 
+                    }
+                });
+            }
+        });
+        
+        
+        
+    }
+    
+    
     // CUT AND MOVE
     public void CutAndMove(ActionEvent event) {
         
         clearMouseEvents();
-        screenshot();
         
+        // Draw Rectangle for Cut boundaries
+        Rectangle dragBox = new Rectangle(0, 0, 0, 0);
+        dragBox.setStroke(color.BLACK);
+        dragBox.setStrokeWidth(1);
+        dragBox.getStrokeDashArray().addAll(3.0,7.0,3.0,7.0);
+        dragBox.setFill(color.TRANSPARENT);
+        dragBox.setVisible(false);
         
-        
-        Image imgCut = new Image("/images/banana.png");
- 
-        ImageView imgViewCut = new ImageView();
-        imgViewCut.setImage(imgCut);
+        canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                loadScreenshot();
+                
+                dragBox.setVisible(true);
+                dragBox.setTranslateX(event.getX());
+                dragBox.setTranslateY(event.getY());
+            }
+        });
 
-        imgViewCut.setCursor(Cursor.HAND);
-        imgViewCut.setTranslateX(0);
-        imgViewCut.setTranslateY(0);
-        imgViewCut.setOnMousePressed(ImageViewOnMousePressedEventHandler);
-        imgViewCut.setOnMouseDragged(ImageViewOnMouseDraggedEventHandler);
-                 
-        //Group root = new Group();
-        rootPane.getChildren().addAll(imgViewCut);
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                dragBox.setWidth(event.getX() - dragBox.getTranslateX());
+                dragBox.setHeight(event.getY() - dragBox.getTranslateY());    
+            }
+        });
+
+        canvas.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                
+                dragBox.setVisible(false);
+                
+                SnapshotParameters params = new SnapshotParameters();
+        
+                WritableImage imgCut = new WritableImage((int)dragBox.getWidth(),
+                        (int)dragBox.getHeight());
+
+                params.setFill(Color.TRANSPARENT);
+                Rectangle2D viewport = new Rectangle2D(
+                        dragBox.getTranslateX(), 
+                        dragBox.getTranslateY() + 117,  // 117 adds the Menu height
+                        dragBox.getWidth(), dragBox.getHeight());
+                params.setViewport(viewport);
+                rootPane.snapshot(params, imgCut);
+
+                //Image imgCut = new Image("/images/banana.png");  // for testing
+
+                imgViewCut = new ImageView();
+                imgViewCut.setVisible(true);
+                imgViewCut.setImage(imgCut);
+                
+                rootPane.getChildren().addAll(imgViewCut);
+                
+                imgViewCut.setCursor(Cursor.HAND);
+                imgViewCut.setTranslateX(dragBox.getTranslateX());
+                imgViewCut.setTranslateY(dragBox.getTranslateY());
+                imgViewCut.setOnMousePressed(ImageViewOnMousePressedEventHandler);
+                imgViewCut.setOnMouseDragged(ImageViewOnMouseDraggedEventHandler);
+                imgViewCut.setOnMouseReleased(ImageViewOnMouseReleasedEventHandler);
+                
+                //Group root = new Group();
+                //rootPane.getChildren().addAll(imgViewCut);
+
+            }
+        });
+        
+        rootPane.getChildren().addAll(dragBox);
+        
     }
     
     
@@ -669,9 +798,10 @@ public class MainController implements Initializable{
         canvas.setOnMousePressed(null);
         canvas.setOnMouseDragged(null);
         canvas.setOnMouseReleased(null);
-        dragBox.setOnDragOver(null);
-        dragBox.setOnDragDetected(null);
-                
+        //dragBox.setOnDragOver(null);
+        //dragBox.setOnDragDetected(null);
+        //imgViewCut.setOnMousePressed(null);
+        //imgViewCut.setOnMouseDragged(null);      
     }
     
     
@@ -748,10 +878,24 @@ public class MainController implements Initializable{
 
         @Override
         public void handle(MouseEvent t) {
+            
             orgSceneX = t.getSceneX();
             orgSceneY = t.getSceneY();
             orgTranslateX = ((ImageView)(t.getSource())).getTranslateX();
             orgTranslateY = ((ImageView)(t.getSource())).getTranslateY();
+            
+            // Add whitespace where cutout was
+            Rectangle rect = new Rectangle(
+                        dragBox.getTranslateX(), 
+                        dragBox.getTranslateY(),  // 117 adds the Menu height
+                        dragBox.getWidth(),
+                        dragBox.getHeight());
+            
+            rect.setStroke(color.TRANSPARENT);
+            rect.setStrokeWidth(0);
+            rect.setFill(color.WHITE);
+
+            rootPane.getChildren().addAll(rect);
         }
     };
 
@@ -760,6 +904,7 @@ public class MainController implements Initializable{
 
         @Override
         public void handle(MouseEvent t) {
+                        
             double offsetX = t.getSceneX() - orgSceneX;
             double offsetY = t.getSceneY() - orgSceneY;
             double newTranslateX = orgTranslateX + offsetX;
@@ -767,6 +912,18 @@ public class MainController implements Initializable{
 
             ((ImageView)(t.getSource())).setTranslateX(newTranslateX);
             ((ImageView)(t.getSource())).setTranslateY(newTranslateY);
+        }
+    };
+    
+    EventHandler<MouseEvent> ImageViewOnMouseReleasedEventHandler = 
+        new EventHandler<MouseEvent>() {
+
+        @Override
+        public void handle(MouseEvent t) {
+            screenshot();
+            loadScreenshot();
+            dequeUndo.push(wim);
+            imgViewCut.setVisible(false);
         }
     };
     
