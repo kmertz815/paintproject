@@ -24,6 +24,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
@@ -38,7 +40,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Slider;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -72,6 +79,9 @@ public class MainController implements Initializable{
     int saveHeight;
     int saveWidth;
     int lineWidth;
+    Rectangle dragBox = new Rectangle(0, 0, 0, 0);
+    double orgSceneX, orgSceneY;
+    double orgTranslateX, orgTranslateY;
     
     private Pair<Double, Double> initialTouch;
     ArrayDeque<WritableImage> dequeUndo = new ArrayDeque<>();
@@ -97,7 +107,8 @@ public class MainController implements Initializable{
     public void initialize(URL location, ResourceBundle resources) {
         
         // Set default background as white for Canvas snapshot:
-        stack.setStyle("-fx-background-color: white");
+        rootPane.setStyle("-fx-background-color: white");
+        //canvas.setStyle("-fx-background-color: white");
         
         lineWidthSlider.setValue(2);
         
@@ -106,8 +117,6 @@ public class MainController implements Initializable{
         dequeUndo.push(wim);
         
     }
-    
-    
     
     
     // CLOSE APP
@@ -175,7 +184,7 @@ public class MainController implements Initializable{
     }
     
     
-    // Save IMAGE AS
+    // SAVE IMAGE AS
     public void SaveImageAs(ActionEvent actionEvent) throws IOException {
         
         Stage stage = new Stage();
@@ -578,32 +587,31 @@ public class MainController implements Initializable{
     
     // DRAW CIRCLE
     public void DrawCircle(ActionEvent event) {
-        
+        // COMING SOON
     }
     
     
-    // DRAW COMMANDS
-    private void initDraw(GraphicsContext gc){
+    // CUT AND MOVE
+    public void CutAndMove(ActionEvent event) {
         
-        double canvasWidth = gc.getCanvas().getWidth();
-        double canvasHeight = gc.getCanvas().getHeight();
+        clearMouseEvents();
+        screenshot();
         
-        /* Uncomment for Canvas border line:
-        gc.strokeRect(
-                0,              //x of the upper left corner
-                0,              //y of the upper left corner
-                canvasWidth,    //width of the rectangle
-                canvasHeight);  //height of the rectangle
-        */
         
-        gc.rect(0, 0, canvasWidth, canvasHeight);
         
-        //gc.fill();
-        //gc.setFill(Color.LIGHTGRAY);
-        gc.setStroke(color);
-        gc.setLineWidth(lineWidthSlider.getValue());
-        // gc.setLineWidth(5);
+        Image imgCut = new Image("/images/banana.png");
+ 
+        ImageView imgViewCut = new ImageView();
+        imgViewCut.setImage(imgCut);
 
+        imgViewCut.setCursor(Cursor.HAND);
+        imgViewCut.setTranslateX(0);
+        imgViewCut.setTranslateY(0);
+        imgViewCut.setOnMousePressed(ImageViewOnMousePressedEventHandler);
+        imgViewCut.setOnMouseDragged(ImageViewOnMouseDraggedEventHandler);
+                 
+        //Group root = new Group();
+        rootPane.getChildren().addAll(imgViewCut);
     }
     
     
@@ -630,12 +638,40 @@ public class MainController implements Initializable{
     }
     
     
+    // Drawing commands
+    private void initDraw(GraphicsContext gc){
+        
+        double canvasWidth = gc.getCanvas().getWidth();
+        double canvasHeight = gc.getCanvas().getHeight();
+        
+        /* Uncomment for Canvas border line:
+        gc.strokeRect(
+                0,              //x of the upper left corner
+                0,              //y of the upper left corner
+                canvasWidth,    //width of the rectangle
+                canvasHeight);  //height of the rectangle
+        */
+        
+        gc.rect(0, 0, canvasWidth, canvasHeight);
+        
+        //gc.fill();
+        //gc.setFill(Color.LIGHTGRAY);
+        gc.setStroke(color);
+        gc.setLineWidth(lineWidthSlider.getValue());
+        // gc.setLineWidth(5);
+
+    }
+    
+    
     // Clear all running mouse action events
     public void clearMouseEvents(){
         canvas.setOnMouseClicked(null);
         canvas.setOnMousePressed(null);
         canvas.setOnMouseDragged(null);
         canvas.setOnMouseReleased(null);
+        dragBox.setOnDragOver(null);
+        dragBox.setOnDragDetected(null);
+                
     }
     
     
@@ -703,4 +739,38 @@ public class MainController implements Initializable{
                 new double[]{210, 210, 240, 240}, 4);
     }
     
+    
+    
+    // Event Handling
+    
+    EventHandler<MouseEvent> ImageViewOnMousePressedEventHandler = 
+        new EventHandler<MouseEvent>() {
+
+        @Override
+        public void handle(MouseEvent t) {
+            orgSceneX = t.getSceneX();
+            orgSceneY = t.getSceneY();
+            orgTranslateX = ((ImageView)(t.getSource())).getTranslateX();
+            orgTranslateY = ((ImageView)(t.getSource())).getTranslateY();
+        }
+    };
+
+    EventHandler<MouseEvent> ImageViewOnMouseDraggedEventHandler = 
+        new EventHandler<MouseEvent>() {
+
+        @Override
+        public void handle(MouseEvent t) {
+            double offsetX = t.getSceneX() - orgSceneX;
+            double offsetY = t.getSceneY() - orgSceneY;
+            double newTranslateX = orgTranslateX + offsetX;
+            double newTranslateY = orgTranslateY + offsetY;
+
+            ((ImageView)(t.getSource())).setTranslateX(newTranslateX);
+            ((ImageView)(t.getSource())).setTranslateY(newTranslateY);
+        }
+    };
+    
+    
 }
+
+

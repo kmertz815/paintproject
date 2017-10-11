@@ -16,16 +16,20 @@
    <left>
       <Pane id="root" fx:id="rootPane" prefHeight="678.0" prefWidth="953.0" BorderPane.alignment="CENTER">
          <children>
-            <ImageView fx:id="imgView" fitHeight="459.0" fitWidth="722.0" pickOnBounds="true" preserveRatio="true">
-               <cursor>
-                  <Cursor fx:constant="CROSSHAIR" />
-               </cursor>
-            </ImageView>
-            <StackPane fx:id="stack" alignment="TOP_LEFT" prefHeight="150.0" prefWidth="200.0">
+            <AnchorPane prefHeight="150.0" prefWidth="200.0">
                <children>
-                  <Canvas fx:id="canvas" height="700.0" width="1100.0" />
+                  <ImageView fx:id="imgView" fitHeight="666.0" fitWidth="1091.0" pickOnBounds="true" preserveRatio="true">
+                     <cursor>
+                        <Cursor fx:constant="CROSSHAIR" />
+                     </cursor>
+                  </ImageView>
+                  <StackPane fx:id="stack" alignment="TOP_LEFT" prefHeight="150.0" prefWidth="200.0">
+                     <children>
+                        <Canvas fx:id="canvas" height="700.0" width="1100.0" />
+                     </children>
+                  </StackPane>
                </children>
-            </StackPane>
+            </AnchorPane>
          </children>
          <cursor>
             <Cursor fx:constant="CROSSHAIR" />
@@ -79,9 +83,8 @@
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#Draw" text="Free Draw" />
                         <MenuItem mnemonicParsing="false" onAction="#DrawLine" text="Draw Line" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Fill With Color" />
                         <MenuItem mnemonicParsing="false" text="Insert Text" />
+                        <MenuItem mnemonicParsing="false" onAction="#CutAndMove" text="Cut and Move" />
                         <MenuItem mnemonicParsing="false" onAction="#Eraser" text="Eraser" />
                     </items>
                   </Menu>
@@ -118,7 +121,7 @@
                      </HBox.margin>
                   </VBox>
                   <Separator layoutX="163.0" layoutY="10.0" orientation="VERTICAL" prefHeight="200.0" />
-                  <Button layoutX="236.0" layoutY="10.0" mnemonicParsing="false" onAction="#Draw" prefHeight="83.0" prefWidth="88.0" text="Free Draw">
+                  <Button layoutX="236.0" layoutY="10.0" mnemonicParsing="false" onAction="#Draw" prefHeight="80.0" prefWidth="88.0" text="Free Draw">
                      <HBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
@@ -134,6 +137,11 @@
                      </HBox.margin>
                   </Button>
                   <Button layoutX="236.0" layoutY="10.0" mnemonicParsing="false" onAction="#DrawCircle" prefHeight="83.0" prefWidth="72.0" text="Circle">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#CutAndMove" prefHeight="83.0" text="Cut and Move">
                      <HBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
