@@ -10,10 +10,12 @@ The program allows the user to ...
 * draw straight lines using the mouse pointer (DRAW LINE)
 * draw free-form lines using the mouse pointer (DRAW CONTINUOUSLY)
 * draw squares using the mouse pointer (DRAW SQUARE)
+* erase parts of an image or something previously drawn (ERASER)
 * Select a part of the canvas in the shape of a square and then drag that cutout somewhere else on the canvas (CUT AND MOVE)
 * insert text fields onto the canvas and type into them (INSERT TEXT)
-* choose the specific color for the different items being drawn (COLOR PICKER)
-* change the line thickness of lines/shapes being drawn
+* choose the specific color for the different items being drawn (COLOR)
+* choose a color to draw with from something previously drawn or from an image by clicking on that color on the canvas (COLOR PICKER)
+* change the line thickness of lines/shapes being drawn using the slider in the toolbar
 * undo actions made (UNDO)
 * redo actions that were previously undone (REDO)
 
