@@ -41,6 +41,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
@@ -292,8 +293,8 @@ public class MainController implements Initializable{
     }
     
     
-    // COLOR PICKER
-    public void ColorPicker(ActionEvent event) {
+    // COLOR
+    public void Color(ActionEvent event) {
         
         Stage stage = new Stage();
         
@@ -309,8 +310,7 @@ public class MainController implements Initializable{
             color = colorPicker.getValue();
             colorCircle.setFill(color);
             colorCircle2.setFill(color);
-            // Reset Draw method (applying new color):
-            //
+            
         });
  
         FlowPane root = new FlowPane();
@@ -345,6 +345,71 @@ public class MainController implements Initializable{
 
         box.getChildren().addAll(colorPicker, text);
 
+        stage.setScene(scene);
+        stage.show();
+        */
+    }
+
+    
+    // COLOR PICKER (using mouse click)
+    public void ColorPicker(ActionEvent event) {
+        
+        clearMouseEvents();
+        
+        canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                
+                screenshot();
+                
+                // Obtain PixelReader
+                PixelReader pixelReader = wim.getPixelReader(); 
+                
+                // Get coordinates at MouseClick
+                int xVal = (int) event.getX();
+                int yVal = (int) event.getX();
+                
+                // Get color at pixel
+                Color colorPicked = pixelReader.getColor(xVal,yVal);
+                color = colorPicked;
+                
+                colorCircle.setFill(color);
+                
+                clearMouseEvents();
+            }
+        });
+        
+        //Color getColor(int x, int y)
+        
+        /*
+        Stage stage = new Stage();
+        
+        colorPicker.setValue(color);
+ 
+        Circle colorCircle2 = new Circle(50);
+        
+        color = colorPicker.getValue();
+        colorCircle.setFill(color);
+        colorCircle2.setFill(color);
+ 
+        colorPicker.setOnAction((ActionEvent event1) -> {
+            color = colorPicker.getValue();
+            colorCircle.setFill(color);
+            colorCircle2.setFill(color);
+            // Reset Draw method (applying new color):
+            //
+        });
+ 
+        FlowPane root = new FlowPane();
+        root.setPadding(new Insets(10));
+        root.setHgap(10);
+        root.getChildren().addAll(colorCircle2, colorPicker);
+        
+        
+        Scene scene = new Scene(root, 350, 130);
+ 
+        stage.setTitle("Kaleb's Color Picker");
+        stage.getIcons().add(new Image("/images/banana.png"));
+ 
         stage.setScene(scene);
         stage.show();
         */
